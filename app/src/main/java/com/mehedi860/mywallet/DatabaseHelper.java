@@ -1,0 +1,330 @@
+/**
+ * package com.mehedi860.mywallet;
+ *
+ * public class DatabaseHelper {
+ * }
+ */
+package com.mehedi860.mywallet;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final String DATABASE_NAME = "WalletDB";
+    private static final int DATABASE_VERSION = 4;
+    private static final String TABLE_USERS = "users";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_USERNAME = "username";
+    private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_BALANCE = "balance";
+    private static final String TABLE_TRANSACTIONS = "transactions";
+    private static final String COLUMN_AMOUNT = "amount";
+    private static final String COLUMN_TYPE = "type";
+    private static final String COLUMN_DATE = "date";
+    private static final String TABLE_FRIENDS = "friends";
+    private static final String COLUMN_USER1 = "user1";
+    private static final String COLUMN_USER2 = "user2";
+    private static final String COLUMN_STATUS = "status";
+    private static final String STATUS_PENDING = "pending";
+    private static final String STATUS_ACCEPTED = "accepted";
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USERNAME + " TEXT, " +
+                COLUMN_PASSWORD + " TEXT, " +
+                COLUMN_BALANCE + " REAL)";
+        db.execSQL(createUsersTable);
+
+        String createTransactionsTable = "CREATE TABLE " + TABLE_TRANSACTIONS + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USERNAME + " TEXT, " +
+                COLUMN_AMOUNT + " REAL, " +
+                COLUMN_TYPE + " TEXT, " +
+                COLUMN_DATE + " TEXT)";
+        db.execSQL(createTransactionsTable);
+
+        String createFriendsTable = "CREATE TABLE " + TABLE_FRIENDS + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USER1 + " TEXT, " +
+                COLUMN_USER2 + " TEXT, " +
+                COLUMN_STATUS + " TEXT)";
+        db.execSQL(createFriendsTable);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PASSWORD + " TEXT");
+        }
+        if (oldVersion < 3) {
+            String createTransactionsTable = "CREATE TABLE " + TABLE_TRANSACTIONS + " (" +
+                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_USERNAME + " TEXT, " +
+                    COLUMN_AMOUNT + " REAL, " +
+                    COLUMN_TYPE + " TEXT, " +
+                    COLUMN_DATE + " TEXT)";
+            db.execSQL(createTransactionsTable);
+        }
+        if (oldVersion < 4) {
+            String createFriendsTable = "CREATE TABLE " + TABLE_FRIENDS + " (" +
+                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_USER1 + " TEXT, " +
+                    COLUMN_USER2 + " TEXT, " +
+                    COLUMN_STATUS + " TEXT)";
+            db.execSQL(createFriendsTable);
+        }
+    }
+
+    public boolean addUser(String username, String password, double balance) {
+        if (isUsernameExists(username)) {
+            return false;
+        }
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_PASSWORD, password);
+        values.put(COLUMN_BALANCE, balance);
+        long result = db.insert(TABLE_USERS, null, values);
+        return result != -1;
+    }
+
+    public double getBalance(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_BALANCE},
+                COLUMN_USERNAME + "=?", new String[]{username},
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            double balance = cursor.getDouble(0);
+            cursor.close();
+            return balance;
+        }
+        cursor.close();
+        return 0.0;
+    }
+
+    public boolean updateBalance(String username, double newBalance) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_BALANCE, newBalance);
+        int result = db.update(TABLE_USERS, values, COLUMN_USERNAME + "=?", new String[]{username});
+        return result > 0;
+    }
+
+    public boolean checkUser(String username, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
+                COLUMN_USERNAME + "=? AND " + COLUMN_PASSWORD + "=?",
+                new String[]{username, password}, null, null, null);
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    public boolean isUsernameExists(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
+                COLUMN_USERNAME + "=?", new String[]{username},
+                null, null, null);
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    public boolean addTransaction(String username, double amount, String type) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_AMOUNT, amount);
+        values.put(COLUMN_TYPE, type);
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+        long result = db.insert(TABLE_TRANSACTIONS, null, values);
+        return result != -1;
+    }
+
+    public List<Transaction> getTransactions(String username) {
+        List<Transaction> transactions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TRANSACTIONS,
+                new String[]{COLUMN_AMOUNT, COLUMN_TYPE, COLUMN_DATE},
+                COLUMN_USERNAME + "=?", new String[]{username},
+                null, null, COLUMN_DATE + " DESC");
+        while (cursor.moveToNext()) {
+            double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT));
+            String type = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE));
+            String date = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+            transactions.add(new Transaction(amount, type, date));
+        }
+        cursor.close();
+        return transactions;
+    }
+
+    public boolean sendFriendRequest(String fromUser, String toUser) {
+        if (fromUser.equals(toUser)) {
+            return false;
+        }
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Check if request already exists
+        Cursor cursor = db.query(TABLE_FRIENDS,
+                new String[]{COLUMN_STATUS},
+                "(" + COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=?) OR (" +
+                COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=?)",
+                new String[]{fromUser, toUser, toUser, fromUser},
+                null, null, null);
+
+        if (cursor.moveToFirst()) {
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER1, fromUser);
+        values.put(COLUMN_USER2, toUser);
+        values.put(COLUMN_STATUS, STATUS_PENDING);
+
+        long result = db.insert(TABLE_FRIENDS, null, values);
+        return result != -1;
+    }
+
+    public boolean acceptFriendRequest(String user, String friendUser) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STATUS, STATUS_ACCEPTED);
+
+        int result = db.update(TABLE_FRIENDS, values,
+                COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=? AND " + COLUMN_STATUS + "=?",
+                new String[]{friendUser, user, STATUS_PENDING});
+        return result > 0;
+    }
+
+    public boolean rejectFriendRequest(String user, String friendUser) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(TABLE_FRIENDS,
+                COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=? AND " + COLUMN_STATUS + "=?",
+                new String[]{friendUser, user, STATUS_PENDING});
+        return result > 0;
+    }
+
+    public List<String> getFriends(String username) {
+        List<String> friends = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Get friends where user is either user1 or user2 and status is accepted
+        Cursor cursor = db.query(TABLE_FRIENDS,
+                new String[]{COLUMN_USER1, COLUMN_USER2},
+                "(" + COLUMN_USER1 + "=? OR " + COLUMN_USER2 + "=?) AND " + COLUMN_STATUS + "=?",
+                new String[]{username, username, STATUS_ACCEPTED},
+                null, null, null);
+
+        while (cursor.moveToNext()) {
+            String user1 = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER1));
+            String user2 = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER2));
+            friends.add(user1.equals(username) ? user2 : user1);
+        }
+        cursor.close();
+        return friends;
+    }
+
+    public List<String> getPendingFriendRequests(String username) {
+        List<String> requests = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Get pending requests where user is the recipient
+        Cursor cursor = db.query(TABLE_FRIENDS,
+                new String[]{COLUMN_USER1},
+                COLUMN_USER2 + "=? AND " + COLUMN_STATUS + "=?",
+                new String[]{username, STATUS_PENDING},
+                null, null, null);
+
+        while (cursor.moveToNext()) {
+            requests.add(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER1)));
+        }
+        cursor.close();
+        return requests;
+    }
+
+    public boolean sendMoneyToFriend(String fromUser, String toUser, double amount) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Check if they are friends
+        Cursor cursor = db.query(TABLE_FRIENDS,
+                new String[]{COLUMN_ID},
+                "((" + COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=?) OR (" +
+                COLUMN_USER1 + "=? AND " + COLUMN_USER2 + "=?)) AND " + COLUMN_STATUS + "=?",
+                new String[]{fromUser, toUser, toUser, fromUser, STATUS_ACCEPTED},
+                null, null, null);
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+
+        // Get sender's balance
+        double senderBalance = getBalance(fromUser);
+        if (senderBalance < amount) {
+            return false;
+        }
+
+        // Get recipient's balance
+        double recipientBalance = getBalance(toUser);
+
+        // Update balances and add transactions
+        db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Update sender's balance
+            updateBalance(fromUser, senderBalance - amount);
+            addTransaction(fromUser, -amount, "Sent to " + toUser);
+
+            // Update recipient's balance
+            updateBalance(toUser, recipientBalance + amount);
+            addTransaction(toUser, amount, "Received from " + fromUser);
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public static class Transaction {
+        private double amount;
+        private String type;
+        private String date;
+
+        public Transaction(double amount, String type, String date) {
+            this.amount = amount;
+            this.type = type;
+            this.date = date;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getDate() {
+            return date;
+        }
+    }
+}
