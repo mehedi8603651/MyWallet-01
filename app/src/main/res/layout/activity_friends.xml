@@ -11,7 +11,7 @@
         android:text="Add Friend"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,13 +25,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter username"
-            android:inputType="text"/>
+            android:inputType="text" />
 
         <Button
             android:id="@+id/addFriendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send Request"/>
+            android:text="Send Request" />
     </LinearLayout>
 
     <TextView
@@ -40,14 +40,14 @@
         android:text="Friend Requests"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp" />
 
     <ListView
         android:id="@+id/pendingRequestsList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -55,12 +55,12 @@
         android:text="Your Friends"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp" />
 
     <ListView
         android:id="@+id/friendsList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
 </LinearLayout>

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.mehedi860.mywallet" />
+                  <option name="mobileSdkAppId" value="1:770070557644:android:74c35b4e9814fdac5ae369" />
+                  <option name="projectId" value="mywallet-7c6f3" />
+                  <option name="projectNumber" value="770070557644" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

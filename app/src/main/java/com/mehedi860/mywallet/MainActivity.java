@@ -1,33 +1,10 @@
-/**
- * package com.mehedi860.mywallet;
- *
- * import android.os.Bundle;
- *
- * import androidx.activity.EdgeToEdge;
- * import androidx.appcompat.app.AppCompatActivity;
- * import androidx.core.graphics.Insets;
- * import androidx.core.view.ViewCompat;
- * import androidx.core.view.WindowInsetsCompat;
- *
- * public class MainActivity extends AppCompatActivity {
- *
- *     @Override
- *     protected void onCreate(Bundle savedInstanceState) {
- *         super.onCreate(savedInstanceState);
- *         EdgeToEdge.enable(this);
- *         setContentView(R.layout.activity_main);
- *         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
- *             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
- *             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
- *             return insets;
- *         });
- *     }
- * }
- */
+
 package com.mehedi860.mywallet;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,65 +35,76 @@ public class MainActivity extends AppCompatActivity {
 
         updateBalanceDisplay();
 
-        btnAddMoney.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String amountStr = etAmount.getText().toString();
-                if (!amountStr.isEmpty()) {
-                    double amount = Double.parseDouble(amountStr);
-                    double currentBalance = dbHelper.getBalance(username);
-                    double newBalance = currentBalance + amount;
+        btnAddMoney.setOnClickListener(v -> handleAddMoney());
+        btnSendMoney.setOnClickListener(v -> handleSendMoney());
+        btnViewHistory.setOnClickListener(v -> handleViewHistory());
+        btnFriends.setOnClickListener(v -> handleFriends());
+    }
+
+    private void handleAddMoney() {
+        String amountStr = etAmount.getText().toString();
+        if (!amountStr.isEmpty()) {
+            try {
+                double amount = Double.parseDouble(amountStr);
+                if (amount <= 0) {
+                    Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                double currentBalance = dbHelper.getBalance(username);
+                double newBalance = currentBalance + amount;
+                if (dbHelper.updateBalance(username, newBalance)) {
+                    dbHelper.addTransaction(username, amount, "ADD");
+                    Toast.makeText(this, "Money Added!", Toast.LENGTH_SHORT).show();
+                    updateBalanceDisplay();
+                    etAmount.setText(""); // Clear the input field
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Enter Amount", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleSendMoney() {
+        String amountStr = etAmount.getText().toString();
+        if (!amountStr.isEmpty()) {
+            try {
+                double amount = Double.parseDouble(amountStr);
+                if (amount <= 0) {
+                    Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                double currentBalance = dbHelper.getBalance(username);
+                if (amount <= currentBalance) {
+                    double newBalance = currentBalance - amount;
                     if (dbHelper.updateBalance(username, newBalance)) {
-                        dbHelper.addTransaction(username, amount, "ADD");
-                        Toast.makeText(MainActivity.this, "Money Added!", Toast.LENGTH_SHORT).show();
+                        dbHelper.addTransaction(username, amount, "SEND");
+                        Toast.makeText(this, "Money Sent!", Toast.LENGTH_SHORT).show();
                         updateBalanceDisplay();
+                        etAmount.setText(""); // Clear the input field
                     }
                 } else {
-                    Toast.makeText(MainActivity.this, "Enter Amount", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Insufficient Balance", Toast.LENGTH_SHORT).show();
                 }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
             }
-        });
+        } else {
+            Toast.makeText(this, "Enter Amount", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        btnSendMoney.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String amountStr = etAmount.getText().toString();
-                if (!amountStr.isEmpty()) {
-                    double amount = Double.parseDouble(amountStr);
-                    double currentBalance = dbHelper.getBalance(username);
-                    if (amount <= currentBalance) {
-                        double newBalance = currentBalance - amount;
-                        if (dbHelper.updateBalance(username, newBalance)) {
-                            dbHelper.addTransaction(username, amount, "SEND");
-                            Toast.makeText(MainActivity.this, "Money Sent!", Toast.LENGTH_SHORT).show();
-                            updateBalanceDisplay();
-                        }
-                    } else {
-                        Toast.makeText(MainActivity.this, "Insufficient Balance", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(MainActivity.this, "Enter Amount", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private void handleViewHistory() {
+        Intent intent = new Intent(this, TransactionHistoryActivity.class);
+        intent.putExtra("username", username);
+        startActivity(intent);
+    }
 
-        btnViewHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TransactionHistoryActivity.class);
-                intent.putExtra("username", username);
-                startActivity(intent);
-            }
-        });
-
-        btnFriends.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FriendsActivity.class);
-                intent.putExtra("username", username);
-                startActivity(intent);
-            }
-        });
+    private void handleFriends() {
+        Intent intent = new Intent(this, FriendsActivity.class);
+        intent.putExtra("username", username);
+        startActivity(intent);
     }
 
     private void updateBalanceDisplay() {

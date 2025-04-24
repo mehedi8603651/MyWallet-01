@@ -1,13 +1,16 @@
 package com.mehedi860.mywallet;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FriendsActivity extends AppCompatActivity {
@@ -16,6 +19,8 @@ public class FriendsActivity extends AppCompatActivity {
     private ListView friendsList;
     private ListView pendingRequestsList;
     private String currentUsername;
+    private List<String> friends;
+    private List<String> pendingRequests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +58,15 @@ public class FriendsActivity extends AppCompatActivity {
 
     private void updateLists() {
         // Update friends list
-        List<String> friends = dbHelper.getFriends(currentUsername);
+        friends = dbHelper.getFriends(currentUsername);
+        if (friends == null) friends = new ArrayList<>();
         ArrayAdapter<String> friendsAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, friends);
         friendsList.setAdapter(friendsAdapter);
 
         // Update pending requests list
-        List<String> pendingRequests = dbHelper.getPendingFriendRequests(currentUsername);
+        pendingRequests = dbHelper.getPendingFriendRequests(currentUsername);
+        if (pendingRequests == null) pendingRequests = new ArrayList<>();
         ArrayAdapter<String> requestsAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_2, android.R.id.text1, pendingRequests) {
             @Override
