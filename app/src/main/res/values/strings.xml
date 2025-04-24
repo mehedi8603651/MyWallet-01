@@ -1,3 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Wallet</string>
+    <string name="app_name">MyWallet</string>
+
+    <!-- activity_change_password.xml -->
+    <string name="change_password_title">Change Password</string>
+    <string name="current_password_hint">Current Password</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="confirm_new_password_hint">Confirm New Password</string>
+    <string name="change_password_button">Change Password</string>
+    <string name="back_button">Back</string>
+
+    <!-- activity_friends.xml -->
+    <string name="add_friend_title">Add Friend</string>
+    <string name="enter_username_hint">Enter username</string>
+    <string name="send_request_button">Send Request</string>
+    <string name="friend_requests_title">Friend Requests</string>
+    <string name="your_friends_title">Your Friends</string>
+
+    <!-- activity_login.xml -->
+    <string name="login_title">Login</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="go_to_register_button">Go to Register</string>
+    <string name="remember_me">Remember Me</string>
+    <string name="forgot_password">Forgot Password</string>
+
+    <!-- activity_main.xml -->
+    <string name="current_balance">Current Balance: $0.00</string>
+    <string name="enter_amount_hint">Enter Amount</string>
+    <string name="add_money_button">Add Money</string>
+    <string name="send_money_button">Send Money</string>
+    <string name="view_history_button">View Transaction History</string>
+    <string name="friends_button">Friends</string>
+
+    <!-- activity_register.xml -->
+    <string name="create_account">Create Account</string>
+    <string name="email_hint">Email Address</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="register_button">Register</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
+
+    <!-- activity_settings.xml -->
+    <string name="profile_settings_title">Profile Settings</string>
+    <string name="app_settings_title">App Settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="enable_biometric">Enable Biometric Authentication</string>
+    <string name="update_profile_button">Update Profile</string>
+
+    <!-- activity_transaction_history.xml -->
+    <string name="transaction_history_title">Transaction History</string>
+
+    <!-- dialog_send_money.xml -->
+    <!-- enter_amount_hint already added for activity_main.xml -->
+    <string name="select_friend">Select Friend</string>
 </resources>

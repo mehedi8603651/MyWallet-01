@@ -104,14 +104,20 @@ public class FriendsActivity extends AppCompatActivity {
 
     private void showSendMoneyDialog(String friendUsername) {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.dialog_send_money, null);
+        View view = getLayoutInflater().inflate(R.layout.dialog_send_money_friend, null);
         EditText amountInput = view.findViewById(R.id.amountInput);
 
         builder.setTitle("Send Money to " + friendUsername)
                 .setView(view)
                 .setPositiveButton("Send", (dialog, which) -> {
+                    String amountStr = amountInput.getText().toString();
+                    if (amountStr.isEmpty()) {
+                        Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     try {
-                        double amount = Double.parseDouble(amountInput.getText().toString());
+                        double amount = Double.parseDouble(amountStr);
                         if (amount <= 0) {
                             Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
                             return;

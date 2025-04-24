@@ -6,6 +6,7 @@
  */
 package com.mehedi860.mywallet;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -52,6 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    @SuppressLint("SQLiteString")
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
@@ -94,45 +96,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 5) {
-            // Add new columns to users table
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_EMAIL + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_FULL_NAME + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PROFILE_PIC + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_EMAIL_VERIFIED + " INTEGER DEFAULT 0");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_VERIFICATION_TOKEN + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_RESET_TOKEN + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_LAST_LOGIN + " TEXT");
-
-            // Create settings table
-            String createSettingsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_SETTINGS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_USERNAME + " TEXT, " +
-                    COLUMN_SETTING_KEY + " TEXT, " +
-                    COLUMN_SETTING_VALUE + " TEXT, " +
-                    "UNIQUE(" + COLUMN_USERNAME + ", " + COLUMN_SETTING_KEY + "))";
-            db.execSQL(createSettingsTable);
-        }
-        if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PASSWORD + " TEXT");
-        }
-        if (oldVersion < 3) {
-            String createTransactionsTable = "CREATE TABLE " + TABLE_TRANSACTIONS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_USERNAME + " TEXT, " +
-                    COLUMN_AMOUNT + " REAL, " +
-                    COLUMN_TYPE + " TEXT, " +
-                    COLUMN_DATE + " TEXT)";
-            db.execSQL(createTransactionsTable);
-        }
-        if (oldVersion < 4) {
-            String createFriendsTable = "CREATE TABLE " + TABLE_FRIENDS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_USER1 + " TEXT, " +
-                    COLUMN_USER2 + " TEXT, " +
-                    COLUMN_STATUS + " TEXT)";
-            db.execSQL(createFriendsTable);
-        }
+        // Drop all existing tables
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SETTINGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSACTIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIENDS);
+        
+        // Recreate all tables
+        onCreate(db);
     }
 
     public boolean addUser(String username, String email, String password, String fullName, double balance) {
@@ -308,6 +279,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
+    @SuppressLint("Range")
     public List<Transaction> getTransactions(String username) {
         List<Transaction> transactions = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -373,6 +345,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result > 0;
     }
 
+    @SuppressLint("Range")
     public List<String> getFriends(String username) {
         List<String> friends = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -393,6 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return friends;
     }
 
+    @SuppressLint("Range")
     public List<String> getPendingFriendRequests(String username) {
         List<String> requests = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();

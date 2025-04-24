@@ -10,7 +10,7 @@
         android:id="@+id/tvBalance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current Balance: $0.00"
+        android:text="@string/current_balance"
         android:textSize="20sp"
         android:layout_marginBottom="20dp" />
 
@@ -18,7 +18,7 @@
         android:id="@+id/etAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Amount"
+        android:hint="@string/enter_amount_hint"
         android:inputType="numberDecimal"
         android:layout_marginBottom="10dp" />
 
@@ -26,27 +26,27 @@
         android:id="@+id/btnAddMoney"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Money"
+        android:text="@string/add_money_button"
         android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/btnSendMoney"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send Money"
+        android:text="@string/send_money_button"
         android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/btnViewHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View Transaction History"
+        android:text="@string/view_history_button"
         android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/btnFriends"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Friends" />
+        android:text="@string/friends_button" />
 
 </LinearLayout>

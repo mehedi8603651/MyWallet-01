@@ -5,13 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <Spinner
-        android:id="@+id/friendSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:hint="@string/select_friend" />
-
     <EditText
         android:id="@+id/amountInput"
         android:layout_width="match_parent"

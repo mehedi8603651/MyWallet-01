@@ -6,11 +6,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TextView tvBalance;
@@ -32,6 +37,14 @@ public class MainActivity extends AppCompatActivity {
         btnFriends = findViewById(R.id.btnFriends);
         dbHelper = new DatabaseHelper(this);
         username = getIntent().getStringExtra("username");
+
+        // If no username, redirect to login
+        if (username == null) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         updateBalanceDisplay();
 
@@ -67,32 +80,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleSendMoney() {
-        String amountStr = etAmount.getText().toString();
-        if (!amountStr.isEmpty()) {
-            try {
-                double amount = Double.parseDouble(amountStr);
-                if (amount <= 0) {
-                    Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                double currentBalance = dbHelper.getBalance(username);
-                if (amount <= currentBalance) {
-                    double newBalance = currentBalance - amount;
-                    if (dbHelper.updateBalance(username, newBalance)) {
-                        dbHelper.addTransaction(username, amount, "SEND");
-                        Toast.makeText(this, "Money Sent!", Toast.LENGTH_SHORT).show();
-                        updateBalanceDisplay();
-                        etAmount.setText(""); // Clear the input field
-                    }
-                } else {
-                    Toast.makeText(this, "Insufficient Balance", Toast.LENGTH_SHORT).show();
-                }
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Enter Amount", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_send_money, null);
+        builder.setView(dialogView);
+
+        Spinner friendSpinner = dialogView.findViewById(R.id.friendSpinner);
+        EditText amountInput = dialogView.findViewById(R.id.amountInput);
+
+        // Get friends list
+        List<String> friends = dbHelper.getFriends(username);
+        if (friends.isEmpty()) {
+            Toast.makeText(this, "Add friends first to send money", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // Setup spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, friends);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        friendSpinner.setAdapter(adapter);
+
+        builder.setTitle("Send Money")
+                .setPositiveButton("Send", (dialog, which) -> {
+                    String selectedFriend = (String) friendSpinner.getSelectedItem();
+                    String amountStr = amountInput.getText().toString();
+
+                    if (amountStr.isEmpty()) {
+                        Toast.makeText(this, "Enter Amount", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    try {
+                        double amount = Double.parseDouble(amountStr);
+                        if (amount <= 0) {
+                            Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        double currentBalance = dbHelper.getBalance(username);
+                        if (amount <= currentBalance) {
+                            if (dbHelper.sendMoneyToFriend(username, selectedFriend, amount)) {
+                                Toast.makeText(this, "Money sent to " + selectedFriend, Toast.LENGTH_SHORT).show();
+                                updateBalanceDisplay();
+                                etAmount.setText(""); // Clear the main amount field
+                            } else {
+                                Toast.makeText(this, "Failed to send money", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, "Insufficient Balance", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null);
+
+        builder.create().show();
     }
 
     private void handleViewHistory() {

@@ -47,7 +47,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            if (dbHelper.checkUser(username, currentPassword)) {
+            if (dbHelper.checkUser(username, currentPassword, false)) { // false because we're using username, not email
                 // Update password in database
                 if (dbHelper.updatePassword(username, newPassword)) {
                     Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show();
@@ -66,8 +66,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private boolean isPasswordStrong(String password) {
         // Password must be at least 8 characters long and contain letters, numbers, and special characters
         return password.length() >= 8 &&
-               password.matches(".*[A-Za-z].*") &&
-               password.matches(".*[0-9].*") &&
-               password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
+                password.matches(".*[A-Za-z].*") &&
+                password.matches(".*[0-9].*") &&
+                password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
     }
 }
