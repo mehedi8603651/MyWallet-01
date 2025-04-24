@@ -154,4 +154,21 @@ public class MainActivity extends AppCompatActivity {
         double balance = dbHelper.getBalance(username);
         tvBalance.setText("Current Balance: $" + String.format("%.2f", balance));
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("username", username);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
