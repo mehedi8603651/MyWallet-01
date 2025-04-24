@@ -27,6 +27,12 @@ public class FriendsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
 
+        // Enable back button in action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Friends");
+        }
+
         dbHelper = new DatabaseHelper(this);
         currentUsername = getIntent().getStringExtra("username");
 
@@ -100,6 +106,12 @@ public class FriendsActivity extends AppCompatActivity {
             String friendUsername = friends.get(position);
             showSendMoneyDialog(friendUsername);
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private void showSendMoneyDialog(String friendUsername) {
